@@ -1,1 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Project with Collapsible Sidebar</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Sidebar with collapsible menu -->
+  <div class="sidebar">
+    <div class="menu">
+      <p class="menu-header" onclick="toggleMenu(this)">Menu 1</p>
+      <ul class="submenu">
+        <li><a href="#" class="menu-link" onclick="loadContent('page1.html', this)">Page 1</a></li>
+        <li><a href="#" class="menu-link" onclick="loadContent('page2.html', this)">Page 2</a></li>
+      </ul>
+    </div>
+
+    <div class="menu">
+      <p class="menu-header" onclick="toggleMenu(this)">Menu 2</p>
+      <ul class="submenu">
+        <li><a href="#" class="menu-link" onclick="loadContent('page3.html', this)">Page 3</a></li>
+        <li><a href="#" class="menu-link" onclick="loadContent('page4.html', this)">Page 4</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main content area -->
+  <div class="main-content">
+    <h1>Welcome to My Project</h1>
+    <div id="page-content">
+      <p>This is the main area where the selected content will appear.</p>
+    </div>
+  </div>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
 
