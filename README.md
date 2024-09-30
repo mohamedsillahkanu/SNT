@@ -1,19 +1,16 @@
-# 🎈 Blank app template
+# My Project with Collapsible Sidebar
 
-A simple Streamlit app template for you to modify!
+## Overview
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+This project is a simple web application that features a collapsible sidebar with navigation menus. It allows users to dynamically load content from different HTML files into a main content area. The sidebar has a light sky blue background, and the layout is designed to be user-friendly and visually appealing.
 
-### How to run it on your own machine
+## Features
 
-1. Install the requirements
+- **Collapsible Sidebar**: Users can expand and collapse menu items to show or hide associated pages.
+- **Dynamic Content Loading**: Content from other HTML files is loaded into the main content area when links are clicked.
+- **Responsive Design**: The layout is responsive, adjusting the sidebar and main content area proportions.
 
-   ```
-   $ pip install -r requirements.txt
-   ```
+## Project Structure
 
-2. Run the app
+The project is organized as follows:
 
-   ```
-   $ streamlit run streamlit_app.py
-   ```
