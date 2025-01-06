@@ -3,7 +3,7 @@
 
 ### 1.1 Load and combine all input files locally
 
-```
+```python
 import pandas as pd
 
 def combine_excel_files_with_validation(input_files, output_file):
@@ -237,7 +237,7 @@ combine_excel_files_with_validation(input_files, output_file)
 ### 1.2 Load and combine all input files from GitHub
 
 
-```
+```python
 import pandas as pd
 from urllib.parse import quote
 
