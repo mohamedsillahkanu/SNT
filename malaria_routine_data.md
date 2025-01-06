@@ -1,5 +1,11 @@
 ### 1.0 Introduction:
+Data preprocessing is a critical phase in the sub-national tailoring of malaria analysis. In this section, we will carry out all the essential steps required to prepare the data for effective analysis. The process begins with loading and combining all malaria routine data from DHIS2 and subsequently loading the combined Excel file. Handling missing data is a key part of this process to ensure the dataset is clean and ready for further operations. We will also create a date column by splitting the `periodname` into `year` and `month` and format it as `YYYY-MM` to allow for straightforward representation on the x-axis during visualizations.
 
+To enhance readability and usability, we will rename columns with long descriptive names into concise variable names without spaces. Furthermore, new variables will be computed to enrich the dataset, followed by generating unique health facility IDs for proper identification. Outlier detection and correction will be performed using various methods to address data inconsistencies, and the corrected outlier values will be integrated back into the dataset. The final step involves merging all data, selecting the most suitable outlier correction method, and preparing the dataset for analysis.
+
+We have carefully broken the code into smaller, manageable snippets to simplify understanding and provide detailed explanations for each line of code. Additionally, we include a user guide that highlights where users can and cannot make changes when copying and pasting the code into their workflow. This ensures that the code can be adapted to specific contexts while maintaining its functionality and consistency. 
+
+Thank you for reading—let’s begin!
 
 ### 1.1 Load and combine all input files locally
 
@@ -56,8 +62,6 @@ output_file = "malaria_routine_data.xlsx"
 # Combine files with validation
 combine_excel_files_with_validation(input_files, output_file)
 ```
-
-
 ```python
 import pandas as pd
 ```
@@ -186,11 +190,8 @@ combine_excel_files_with_validation(input_files, output_file)
 ```
 - calls the function `combine_excel_files_with_validation`, passing `input_files` and `output_file` as arguments to validate and combine the Excel files.
 
-
-
 #### 1.1.1 User guide: what to modify
-
-1. **File Paths**
+**File Paths**
    - Replace the file paths in the `input_files` list with the paths to your Excel files. For example:
      ```python
      input_files = [
@@ -200,19 +201,18 @@ combine_excel_files_with_validation(input_files, output_file)
      ]
      ```
 
-2. **Sheet Name**
+**Sheet Name**
    - If your Excel files have a different sheet name, update the `sheet_name` parameter in both `pd.read_excel` calls. For example:
      ```python
      pd.read_excel(file, sheet_name='YourSheetName')
      ```
-
-3. **Output File**
+**Output File**
    - Change the name and path of the output file by modifying the `output_file` variable. For example:
      ```python
      output_file = "/path/to/combined_file.xlsx"
      ```
 
-4. **Column Validation**
+**Column Validation**
    - If you do not need column validation, you can remove or comment out the validation checks:
      ```python
      if list(df.columns) != reference_columns:
@@ -221,21 +221,16 @@ combine_excel_files_with_validation(input_files, output_file)
      if len(df.columns) != reference_column_length:
          raise ValueError(f"Column count does not match for file: {file}")
      ```
-
-5. **Index Inclusion**
+**Index Inclusion**
    - If you want to include the index in the output file, change the `index=False` parameter in `to_excel` to `index=True`. For example:
      ```python
      combined_df.to_excel(output_file, index=True)
      ```
-
-6. **File Format**
+**File Format**
    - If your input files are `.csv` instead of `.xlsx`, update `pd.read_excel` to `pd.read_csv` for reading the files, and change `to_excel` to `to_csv` for writing the output.
-
----
 
 
 ### 1.2 Load and combine all input files from GitHub
-
 
 ```python
 import pandas as pd
@@ -312,8 +307,7 @@ output_file = "malaria_routine_data.xlsx"
 combine_excel_files_with_validation(file_urls, output_file)
 
 ```
-
-**1. Import Libraries**
+**Import libraries**
 ```python
 import pandas as pd
 from urllib.parse import quote
@@ -321,16 +315,13 @@ from urllib.parse import quote
 - **`pandas`** is imported to handle data manipulation and Excel file operations.
 - **`quote`** from `urllib.parse` is imported to encode file names for safe use in URLs.
 
-
-**2. Base GitHub URL**
+**Base GitHub url**
 ```python
 base_url = "https://raw.githubusercontent.com/mohamedsillahkanu/SNT/f4408583752429926d6b7a41e8a0052aeee93d84/files/"
 ```
 - The base URL points to the directory containing the Excel files in the GitHub repository.
 
-
-
-**3. List of File Names**
+**List of file names**
 ```python
 file_names = [
     "Bo_District_2015-2023.xls",
@@ -341,17 +332,13 @@ file_names = [
 ```
 - A list of file names that need to be fetched from the GitHub repository.
 
-
-**4. Encode File Names**
+**Encode file names**
 ```python
 file_urls = [base_url + quote(file_name) for file_name in file_names]
 ```
 - Encodes the file names to handle spaces and special characters.
 - Combines each file name with the base URL to create a list of fully qualified file URLs.
-
-
-
-**5. Define a Function to Read Excel Files**
+**Define a function to read excel files**
 ```python
 def read_excel_file(url):
     try:
@@ -364,14 +351,11 @@ def read_excel_file(url):
         return None
 ```
 - **Purpose**: Reads an Excel file from a URL.
-- **How It Works**:
+- **How it works**:
   1. Prints a message indicating the file being read.
   2. Reads the file into a DataFrame using `pd.read_excel`.
   3. Returns the DataFrame if successful, or `None` if an error occurs.
-
-
-
-**6. Define a Function to Combine Files**
+**Define a function to combine files**
 ```python
 def combine_excel_files_with_validation(file_urls, output_file):
     try:
@@ -380,12 +364,12 @@ def combine_excel_files_with_validation(file_urls, output_file):
         if reference_df is None:
             raise ValueError("Reference file could not be read.")
 ```
-- **Initial Setup**:
+- **Initial setup**:
   - Creates an empty list `dfs` to store the DataFrames.
   - Reads the first file as the **reference file** and validates it is readable.
 
 
-**7. Validate and Extract Reference Columns**
+**Validate and extract reference columns**
 ```python
         reference_columns = list(reference_df.columns)
         reference_column_length = len(reference_columns)
@@ -393,7 +377,7 @@ def combine_excel_files_with_validation(file_urls, output_file):
 - Extracts the column names and the count of columns from the reference file to ensure consistency across all files.
 
 
-**8. Loop Through Files and Validate**
+**Loop through files and validate**
 ```python
         for url in file_urls:
             df = read_excel_file(url)
@@ -412,7 +396,7 @@ def combine_excel_files_with_validation(file_urls, output_file):
   4. Appends the validated DataFrame to `dfs`.
 
 
-**9. Combine and Save**
+**9. Combine and save**
 ```python
         combined_df = pd.concat(dfs, ignore_index=True)
         combined_df.to_excel(output_file, index=False)
@@ -421,18 +405,14 @@ def combine_excel_files_with_validation(file_urls, output_file):
 - Combines all validated DataFrames into a single DataFrame using `pd.concat`.
 - Saves the combined DataFrame to the specified `output_file` in Excel format.
 
-
-
-**10. Handle Errors**
+**Handle Errors**
 ```python
     except Exception as e:
         print(f"Error: {e}")
 ```
 - Catches and prints any errors encountered during the file combination process.
 
-
-
-**11. Specify Output File and Execute**
+**Specify Output File and Execute**
 ```python
 output_file = "malaria_routine_data.xlsx"
 combine_excel_files_with_validation(file_urls, output_file)
@@ -440,18 +420,15 @@ combine_excel_files_with_validation(file_urls, output_file)
 - Sets the name of the output file.
 - Calls the `combine_excel_files_with_validation` function, passing the file URLs and the output file name.
 
-
 #### 1.2.1 User guide: what to modify
 
 To adapt this code to your own requirements, make the following changes:
-
-1. **Base URL**  
+**Base url**  
    Replace the `base_url` with the URL of your GitHub repository or the location where your Excel files are stored.  
    ```python
    base_url = "https://raw.githubusercontent.com/your-username/your-repo/branch-name/your-folder/"
    ```
-
-2. **File Names**  
+**File names**  
    Update the `file_names` list with the names of the files you want to combine. Ensure these file names match exactly with the files in your repository or storage location.  
    ```python
    file_names = [
@@ -460,26 +437,22 @@ To adapt this code to your own requirements, make the following changes:
        ...
    ]
    ```
-
-3. **Sheet Name**  
+**Sheet Name**  
    If your Excel files have a sheet name other than `'Sheet1'`, update the `sheet_name` parameter in the `read_excel_file` function:  
    ```python
    df = pd.read_excel(url, sheet_name='YourSheetName', engine='xlrd')
    ```
-
-4. **Output File Name**  
+**Output File Name**  
    Change the `output_file` variable to set the desired name and location for the combined output file:  
    ```python
    output_file = "your_combined_file.xlsx"
    ```
-
-5. **Excel Engine**  
+**Excel Engine**  
    If your Excel files use a format incompatible with `xlrd`, use the appropriate engine (`openpyxl` for `.xlsx`, `xlrd` for older `.xls`):  
    ```python
    df = pd.read_excel(url, engine='openpyxl')  # For .xlsx files
    ```
-
-6. **Column Validation (Optional)**  
+**Column Validation (Optional)**  
    If column validation is not needed, comment out or remove the validation checks in the loop:  
    ```python
    # if list(df.columns) != reference_columns:
@@ -489,12 +462,9 @@ To adapt this code to your own requirements, make the following changes:
    #     raise ValueError(f"Column count does not match for file: {url}")
    ```
 
----
+### 1.3 Load the combined Excel file
 
-
-### 1.3 Load the combined excel file
-
-```
+```python
 import pandas as pd
 
 def read_combined_excel(file_path):
@@ -530,7 +500,7 @@ df = combined_data.copy()
 
 #### 1.3.1 User guide: what to change
 
-**1. File Path**  
+**File Path**  
 ```python
 output_file = "malaria_routine_data.xlsx"
 ```
@@ -540,7 +510,7 @@ output_file = "malaria_routine_data.xlsx"
   output_file = "path/to/your_file.xlsx"
   ```
 
-**2. Sheet Name**  
+**Sheet Name**  
 ```python
 combined_df = pd.read_excel(file_path, sheet_name=0)
 ```
@@ -550,7 +520,7 @@ combined_df = pd.read_excel(file_path, sheet_name=0)
   combined_df = pd.read_excel(file_path, sheet_name="YourSheetName")
   ```
 
-**3. Error Handling Messages**  
+**Error Handling Messages**  
 ```python
 print(f"Error: The file '{file_path}' was not found.")
 ```
@@ -559,9 +529,7 @@ print(f"Error: The file '{file_path}' was not found.")
   ```python
   print(f"Error: Unable to find the specified Excel file at '{file_path}'. Please check the file path.")
   ```
-
-
-**4. Data Validation (Optional)**  
+**Data Validation (Optional)**  
 - If you want to perform additional checks on the loaded DataFrame (e.g., ensuring specific columns exist), add validation logic after loading the data.
 - Example:
   ```python
@@ -569,9 +537,7 @@ print(f"Error: The file '{file_path}' was not found.")
       print("Error: The required column 'RequiredColumn' is missing.")
       return None
   ```
-
-
-**5. Output Display**  
+**Output Display**  
 ```python
 print(combined_data.head())
 ```
@@ -582,7 +548,7 @@ print(combined_data.head())
   print(combined_data[['Column1', 'Column2']])  # Display specific columns
   ```
 
-**6. Copying the DataFrame (Optional)**  
+**Copying the DataFrame (Optional)**  
 ```python
 df = combined_data.copy()
 ```
@@ -633,16 +599,12 @@ def process_dataframe_with_integer_month(df, column_to_split, drop_column):
     except Exception as e:
         print(f"Error processing DataFrame: {e}")
         return None
-
-
-
 # Call the function
 df = process_dataframe_with_integer_month(df, 'periodname', 'orgunitlevel5')
 
 ```
 
-
-**1. Define the function `process_dataframe_with_integer_month`**  
+**Define the function `process_dataframe_with_integer_month`**  
 ```python
 def process_dataframe_with_integer_month(df, column_to_split, drop_column):
     """
@@ -663,15 +625,13 @@ def process_dataframe_with_integer_month(df, column_to_split, drop_column):
 - Includes a docstring to describe the function's purpose, input parameters, and return value.
 
 
-**2. Use a `try` block to handle errors**  
+**Use a `try` block to handle errors**  
 ```python
     try:
 ```
 - Starts a `try` block to process the DataFrame while catching any exceptions.
 
-
-
-**3. Define a dictionary to map month names to integers**  
+**Define a dictionary to map month names to integers**  
 ```python
         month_map = {
             'January': '01', 'February': '02', 'March': '03', 'April': '04',
@@ -683,57 +643,43 @@ def process_dataframe_with_integer_month(df, column_to_split, drop_column):
 
 
 
-**4. Split the specified column into 'month' and 'year'**  
+**Split the specified column into 'month' and 'year'**  
 ```python
         df[['month', 'year']] = df[column_to_split].str.split(' ', expand=True)
 ```
 - Splits the values in the `column_to_split` column into two separate columns: `'month'` and `'year'`.
 - The `str.split(' ', expand=True)` method splits the string at spaces and expands the result into multiple columns.
 
-
-
-**5. Map month names to integers**  
+**Map month names to integers**  
 ```python
         df['month'] = df['month'].map(month_map)
 ```
 - Maps the values in the `'month'` column to their corresponding numeric values using the `month_map` dictionary.
-
-
-
-**6. Convert the 'year' column to numeric**  
+**Convert the 'year' column to numeric**  
 ```python
         df['year'] = pd.to_numeric(df['year'], errors='raise')
 ```
 - Converts the `'year'` column to numeric values using `pd.to_numeric`. 
 - If the conversion fails, an error is raised.
 
----
-
-**7. Create a new 'Date' column in 'YYYY-MM' format**  
+**Create a new 'Date' column in 'YYYY-MM' format**  
 ```python
         df['Date'] = df['year'].astype(str) + '-' + df['month']
 ```
 - Combines the `'year'` and `'month'` columns to create a new `'Date'` column in the format `YYYY-MM`.
 
-
-
-**8. Drop the specified columns**  
+**Drop the specified columns**  
 ```python
         df.drop(columns=[column_to_split, drop_column], inplace=True)
 ```
 - Drops the original column used for splitting (`column_to_split`) and the additional column (`drop_column`) from the DataFrame.
-
-
 
 **9. Return the processed DataFrame**  
 ```python
         return df
 ```
 - Returns the modified DataFrame.
-
-
-
-**10. Handle errors during processing**  
+**Handle errors during processing**  
 ```python
     except Exception as e:
         print(f"Error processing DataFrame: {e}")
@@ -741,10 +687,7 @@ def process_dataframe_with_integer_month(df, column_to_split, drop_column):
 ```
 - Catches any exceptions raised during processing.
 - Prints the error message and returns `None`.
-
-
-
-**11. Call the function**  
+**Call the function**  
 ```python
 df = process_dataframe_with_integer_month(df, 'periodname', 'orgunitlevel5')
 ```
@@ -755,7 +698,7 @@ df = process_dataframe_with_integer_month(df, 'periodname', 'orgunitlevel5')
 
 #### 1.4.1 User guide: what to modify
 
-**1. Column to Split**  
+**Column to split**  
 ```python
 df[['month', 'year']] = df[column_to_split].str.split(' ', expand=True)
 ```
@@ -765,7 +708,7 @@ df[['month', 'year']] = df[column_to_split].str.split(' ', expand=True)
   column_to_split = 'YourColumnName'
   ```
 
-**2. Column to Drop**  
+**Column to drop**  
 ```python
 df.drop(columns=[column_to_split, drop_column], inplace=True)
 ```
@@ -776,7 +719,7 @@ df.drop(columns=[column_to_split, drop_column], inplace=True)
   ```
 
 
-**3. Month and Year Format in `column_to_split`**  
+**month and year format in `column_to_split`**  
 - Ensure that the `column_to_split` contains values in the format `'<MonthName> <Year>'` (e.g., `'January 2023'`).
 - If the format is different, adjust the splitting logic:
   ```python
@@ -784,22 +727,15 @@ df.drop(columns=[column_to_split, drop_column], inplace=True)
   ```
 
 
-**4. Month Mapping (Optional)**  
+**Month mapping (Optional)**  
 ```python
 month_map = {
     'January': '01', 'February': '02', ..., 'December': '12'
 }
 ```
-- Update the `month_map` dictionary if your month names are in a different language or format.
-- Example:
-  ```python
-  month_map = {
-      'Janvier': '01', 'Février': '02', ..., 'Décembre': '12'  # For French month names
-  }
+- Update the `month_map` dictionary if your month names are in a different format.
   ```
-
-
-**5. DataFrame Input**  
+**DataFrame input**  
 ```python
 df = process_dataframe_with_integer_month(df, 'periodname', 'orgunitlevel5')
 ```
@@ -808,9 +744,7 @@ df = process_dataframe_with_integer_month(df, 'periodname', 'orgunitlevel5')
   ```python
   df = process_dataframe_with_integer_month(df, 'YourPeriodColumn', 'YourColumnToDrop')
   ```
-
-
-**6. Error Handling Messages (Optional)**  
+**Error handling messages (optional)**  
 ```python
 print(f"Error processing DataFrame: {e}")
 ```
@@ -819,8 +753,7 @@ print(f"Error processing DataFrame: {e}")
   ```python
   print(f"Error: Unable to process the column '{column_to_split}' or '{drop_column}': {e}")
   ```
-
-**7. New Date Format (Optional)**  
+**New date format (optional)**  
 ```python
 df['Date'] = df['year'].astype(str) + '-' + df['month']
 ```
@@ -829,8 +762,6 @@ df['Date'] = df['year'].astype(str) + '-' + df['month']
   ```python
   df['Date'] = df['month'] + '-' + df['year'].astype(str)  # Format 'MM-YYYY'
   ``` 
----
-
 ### 1.5 Rename the columns
 
 ```
@@ -934,11 +865,9 @@ def rename_columns(df):
 
 # call the function
 df = rename_columns(df)
-
-
 ```
 
-**1. Define the `rename_columns` function**  
+**Define the `rename_columns` function**  
 ```python
 def rename_columns(df):
     """
@@ -955,14 +884,14 @@ def rename_columns(df):
 - Includes a docstring to describe the purpose, input (`df`), and output (a processed DataFrame).
 
 
-**2. Use a `try` block to handle errors**  
+**Use a `try` block to handle errors**  
 ```python
     try:
 ```
 - Starts a `try` block to rename the columns while catching any exceptions.
 
 
-**3. Define the dictionary for organizational unit renaming**  
+**Define the dictionary for organizational unit renaming**  
 ```python
         orgunit_rename = {
             'orgunitlevel1': 'adm0',
@@ -975,7 +904,7 @@ def rename_columns(df):
 - Defines a dictionary (`orgunit_rename`) that maps old column names (e.g., `'orgunitlevel1'`) to new column names (e.g., `'adm0'`) for organizational unit levels.
 
 
-**4. Define the dictionary for other column renaming**  
+**Define the dictionary for other column renaming**  
 ```python
         column_rename = {
             'OPD (New and follow-up curative) 0-59m_X': 'allout_u5',
@@ -986,8 +915,7 @@ def rename_columns(df):
 - Defines a dictionary (`column_rename`) that maps additional old column names to more concise, descriptive new names.
 - The mappings cover a wide range of columns for outpatient data, malaria admissions, deaths, testing, and treatments.
 
-
-**5. Combine the dictionaries and rename columns**  
+**Combine the dictionaries and rename columns**  
 ```python
         df = df.rename(columns={**orgunit_rename, **column_rename})
 ```
@@ -995,14 +923,14 @@ def rename_columns(df):
 - Uses `df.rename(columns=...)` to rename the columns in the DataFrame based on the combined mappings.
 
 
-**6. Return the updated DataFrame**  
+**Return the updated DataFrame**  
 ```python
         return df
 ```
 - Returns the DataFrame with the renamed columns.
 
 
-**7. Handle exceptions during renaming**  
+**Handle exceptions during renaming**  
 ```python
     except Exception as e:
         print(f"Error renaming columns: {e}")
@@ -1012,19 +940,16 @@ def rename_columns(df):
 - Prints an error message and returns `None`.
 
 
-**8. Call the `rename_columns` function**  
+**Call the `rename_columns` function**  
 ```python
 df = rename_columns(df)
 ```
 - Calls the `rename_columns` function and passes the DataFrame (`df`) to it.
 - Stores the processed DataFrame with renamed columns back into the variable `df`.
 
----
-
-
 #### User guide: what to modify
 
-**1. Input DataFrame**  
+**Input dataFrame**  
 ```python
 df = rename_columns(df)
 ```
@@ -1033,10 +958,7 @@ df = rename_columns(df)
   ```python
   df = rename_columns(your_dataframe)
   ```
-
-
-
-**2. Organizational Unit Column Names**  
+**Organizational Unit Column Names**  
 ```python
 orgunit_rename = {
     'orgunitlevel1': 'adm0',
@@ -1049,9 +971,8 @@ orgunit_rename = {
 - Update the keys in the `orgunit_rename` dictionary if the column names in your dataset differ.
 
 ```
-
-
-**3. Other Column Names**  
+**Other column names**
+ 
 ```python
 column_rename = {
     'OPD (New and follow-up curative) 0-59m_X': 'allout_u5',
@@ -1062,7 +983,7 @@ column_rename = {
 - Replace the keys in the `column_rename` dictionary to match your dataset's column names.
 
 
-**4. Error Messages (Optional)**  
+**Error messages (optional)**  
 ```python
 print(f"Error renaming columns: {e}")
 ```
@@ -1071,9 +992,7 @@ print(f"Error renaming columns: {e}")
   ```python
   print(f"Error: Could not rename columns. Check the column names in your dataset. {e}")
   ```
-
-
-**5. Combined Dictionary (Optional)**  
+**Combined dictionary (optional)**  
 ```python
 df = df.rename(columns={**orgunit_rename, **column_rename})
 ```
@@ -1082,8 +1001,6 @@ df = df.rename(columns={**orgunit_rename, **column_rename})
   df = df.rename(columns=orgunit_rename)
   df = df.rename(columns=column_rename)
   ```
-
-
 ### 1.6 Calculate new variables
 
 ```
@@ -1190,7 +1107,7 @@ def create_variables(df):
 df = create_variables(df)
 ```
 
-**1. Import Necessary Libraries**  
+**Import necessary libraries**  
 ```python
 import numpy as np
 import pandas as pd
@@ -1198,7 +1115,7 @@ import pandas as pd
 - Imports `numpy` for numerical operations and `pandas` for data manipulation.
 
 
-**2. Define the `create_variables` Function**  
+**2. Define the `create_variables` function**  
 ```python
 def create_variables(df):
     """
@@ -1216,31 +1133,23 @@ def create_variables(df):
 
 
 
-**3. Use a `try` Block to Handle Errors**  
+**3. Use a `try` block to handle errors**  
 ```python
     try:
 ```
 - Starts a `try` block to handle potential exceptions during column computations.
-
-
-**4. Create the `allout` Variable**  
+**4. Create the `allout` variable**  
 ```python
         df['allout'] = df[['allout_u5', 'allout_ov5']].sum(axis=1, skipna=True, min_count=1)
 ```
 - Adds a new column `allout` by summing `allout_u5` and `allout_ov5` for each row.
 - `skipna=True` ensures `NaN` values are ignored, and `min_count=1` ensures at least one non-`NaN` value is required to compute the sum.
-
-
-
-**5. Create the `susp` Variable**  
+**5. Create the `susp` variable**  
 ```python
         df['susp'] = df[['susp_u5_hf', 'susp_5_14_hf', 'susp_ov15_hf', 'susp_u5_com', 'susp_5_14_com', 'susp_ov15_com']].sum(axis=1, skipna=True, min_count=1)
 ```
 - Adds a new column `susp` by summing all columns related to suspected malaria cases in both health facilities (`hf`) and communities (`com`).
-
-
-
-**6. Create the `test_hf` Variable**  
+**6. Create the `test_hf` variable**  
 ```python
         test_hf_columns = [
             'test_neg_mic_u5_hf', 'test_pos_mic_u5_hf', 'test_neg_mic_5_14_hf', 'test_pos_mic_5_14_hf',
@@ -1250,10 +1159,7 @@ def create_variables(df):
         df['test_hf'] = df[test_hf_columns].sum(axis=1, skipna=True, min_count=1)
 ```
 - Sums all test-related columns in health facilities to compute the `test_hf` variable.
-
-
-
-**7. Create the `test_com` Variable**  
+**Create the `test_com` variable**  
 ```python
         test_com_columns = [
             'tes_neg_rdt_u5_com', 'tes_pos_rdt_u5_com', 'tes_neg_rdt_5_14_com', 'tes_pos_rdt_5_14_com',
@@ -1263,17 +1169,12 @@ def create_variables(df):
 ```
 - Sums all test-related columns in communities to compute the `test_com` variable.
 
-
-
-**8. Create the `test` Variable**  
+**Create the `test` variable**  
 ```python
         df['test'] = df[['test_hf', 'test_com']].sum(axis=1, skipna=True, min_count=1)
 ```
 - Combines `test_hf` and `test_com` into a total `test` variable.
-
-
-
-**9. Create the `conf_hf` and `conf_com` Variables**  
+**Create the `conf_hf` and `conf_com` variables**  
 ```python
         conf_hf_columns = [
             'test_pos_mic_u5_hf', 'test_pos_mic_5_14_hf', 'test_pos_mic_ov15_hf',
@@ -1288,17 +1189,13 @@ def create_variables(df):
 ```
 - Sums positive test results for health facilities (`conf_hf`) and communities (`conf_com`).
 
-
-
-**10. Create the `conf` Variable**  
+**Create the `conf` variable**  
 ```python
         df['conf'] = df[['conf_hf', 'conf_com']].sum(axis=1, skipna=True, min_count=1)
 ```
 - Combines `conf_hf` and `conf_com` into a total `conf` variable.
-
-
-
-**11. Create Treatment Variables**  
+- 
+**Create treatment variables**  
 ```python
         maltreat_com_columns = [
             'maltreat_u24_u5_com', 'maltreat_ov24_u5_com', 'maltreat_u24_5_14_com',
@@ -1316,9 +1213,7 @@ def create_variables(df):
 ```
 - Computes treatment-related variables for communities, health facilities, and their total.
 
-
-
-**12. Create Prescription Variables**  
+**Create Prescription Variables**  
 ```python
         df['pres_com'] = df['maltreat_com'].sub(df['conf_com'], fill_value=0)
         df['pres_com'] = np.where(df['pres_com'] < 0, 0, df['pres_com'])
@@ -1333,7 +1228,7 @@ def create_variables(df):
 
 
 
-**13. Create Malaria Admission and Death Variables**  
+**Create malaria admission and death variables**  
 ```python
         maladm_columns = ['maladm_u5', 'maladm_5_14', 'maladm_ov15']
         df['maladm'] = df[maladm_columns].sum(axis=1, skipna=True, min_count=1)
@@ -1345,18 +1240,14 @@ def create_variables(df):
         df['maldth'] = df[maldth_columns].sum(axis=1, skipna=True, min_count=1)
 ```
 - Computes total malaria admissions and deaths for various age groups.
-
-
-**14. Handle Exceptions**  
+**Handle exceptions**  
 ```python
     except Exception as e:
         print(f"Error creating variables: {e}")
         return None
 ```
 - Catches and handles any exceptions, printing the error message.
-
-
-**15. Call the Function**  
+**Call the function**  
 ```python
 df = create_variables(df)
 ```
@@ -1366,13 +1257,13 @@ df = create_variables(df)
 #### 1.6.1 User guide: what to modify
 
 
-**1. Input DataFrame**  
+**Input dataFrame**  
 - Replace the placeholder `df` with the name of your actual DataFrame when calling the function:
   ```python
   df = create_variables(df)
   ```
 
-**2. Column Names in the Dataset**  
+**Column names in the dataset**  
 - Ensure all column names referenced in the function exist in your DataFrame. If any column names differ, update the function to match your dataset:
   - Columns for suspected cases (`susp_u5_hf`, `susp_ov15_com`, etc.).
   - Testing columns (`test_neg_mic_u5_hf`, `tes_pos_rdt_u5_com`, etc.).
@@ -1380,7 +1271,7 @@ df = create_variables(df)
   - Malaria admissions and deaths columns (`maladm_u5`, `maldth_1_59m`, etc.).
 
 
-**3. Missing Value Handling**  
+**Missing value handling**  
 - Verify and, if necessary, adjust the handling of missing values in `.sum()` calculations:
   ```python
   df[column_list].sum(axis=1, skipna=True, min_count=1)
@@ -1389,7 +1280,7 @@ df = create_variables(df)
   - `min_count=1`: Ensures at least one non-`NaN` value is required for the sum.
 
 
-**4. Logical Operations for Prescription Variables**  
+**Logical operations for prescription variables**  
 - Confirm the subtraction logic for prescription variables (`pres_com` and `pres_hf`):
   ```python
   df['pres_com'] = df['maltreat_com'].sub(df['conf_com'], fill_value=0)
@@ -1398,23 +1289,18 @@ df = create_variables(df)
   - If this logic doesn’t apply to your dataset, update or remove it.
 
 
-**5. Error Handling Messages**  
+**Error handling messages**  
 - Update the error message in the `except` block to provide more context for debugging:
   ```python
   print(f"Error creating variables: {e}")
   ```
-
-**6. New Variable Naming**  
+**New variable naming**  
 - Review the names of the new variables (`allout`, `susp`, `test`, `conf`, `maltreat`, etc.) and ensure they align with your naming conventions. Update if necessary.
-
-
-**7. Additional Variables or Columns**  
+**Additional variables or columns**  
 - If there are additional columns in your dataset relevant to the calculations, add them to the appropriate lists for summation.
-
-
 ### 1.7 Generate health facility ID
 
-```
+```python
 def create_hfid_column(df):
     """
     Create a unique HFID by grouping adm1, adm2, adm3, and hf,
@@ -1432,7 +1318,7 @@ def create_hfid_column(df):
 df=create_hfid_column(df)
 ```
 
-**1. Define the `create_hfid_column` Function**  
+**Define the `create_hfid_column` Function**  
 ```python
 def create_hfid_column(df):
     """
@@ -1442,10 +1328,7 @@ def create_hfid_column(df):
 ```
 - Defines a function named `create_hfid_column` to generate a unique Health Facility ID (`hf_uid`) for each group of administrative levels (`adm1`, `adm2`, `adm3`) and health facilities (`hf`).
 - The docstring explains the purpose and logic of the function.
-
-
-
-**2. Group Data by Administrative Levels and HF**  
+**Group Data by Administrative Levels and HF**  
 ```python
     df['hf_uid'] = (
         df.groupby(['adm1', 'adm2', 'adm3', 'hf'])
@@ -1453,10 +1336,7 @@ def create_hfid_column(df):
 ```
 - Groups the DataFrame by the specified columns: `adm1`, `adm2`, `adm3`, and `hf`.
 - Uses `.ngroup()` to assign a unique group number (`0`, `1`, `2`, etc.) for each combination of these columns.
-
-
-
-**3. Format Group Numbers into IDs**  
+**Format Group Numbers into IDs**  
 ```python
         .apply(lambda x: f"hf_{x + 1:04}")  # Formats as hf_0001, hf_0002, etc.
 ```
@@ -1464,19 +1344,14 @@ def create_hfid_column(df):
   - `x + 1`: Ensures the numbering starts from `1`.
   - `:04`: Pads the number to ensure it is at least four digits (e.g., `0001`).
 
-
-
-**4. Return the Updated DataFrame**  
+**Return the Updated DataFrame**  
 ```python
     )
     return df
 ```
 - Updates the DataFrame by adding the new column `hf_uid`.
 - Returns the updated DataFrame.
-
-
-
-**5. Call the `create_hfid_column` Function**  
+**Call the `create_hfid_column` Function**  
 ```python
 df = create_hfid_column(df)
 ```
@@ -1485,7 +1360,7 @@ df = create_hfid_column(df)
 
 #### 1.7.1 User guide: what to modify
 
-**1. Column Names for Grouping**  
+**Column names for grouping**  
 ```python
 df.groupby(['adm1', 'adm2', 'adm3', 'hf'])
 ```
@@ -1493,7 +1368,7 @@ df.groupby(['adm1', 'adm2', 'adm3', 'hf'])
 - If your column names differ, replace them with the actual column names in your dataset.
 
 
-**2. Unique ID Format**  
+**Unique ID format**  
 ```python
 .apply(lambda x: f"hf_{x + 1:04}")
 ```
@@ -1507,28 +1382,25 @@ df.groupby(['adm1', 'adm2', 'adm3', 'hf'])
     .apply(lambda x: f"hf_{x + 1:03}")
     ```
 
-**3. Input DataFrame**  
+**Input DataFrame**  
 ```python
 df = create_hfid_column(df)
 ```
 - Replace `df` with the actual name of your DataFrame when calling the function.
 
-
-**4. Additional Grouping Columns (Optional)**  
+**Additional grouping columns (optional)**  
 - If additional columns are required for unique identification, include them in the `groupby` method:
   ```python
   df.groupby(['adm1', 'adm2', 'adm3', 'hf', 'extra_column'])
   ``` 
 
-**5. Ensure Required Columns Exist**  
+**Ensure Required Columns Exist**  
 - Verify that the columns specified in the `groupby` method contain the correct data and are not missing or empty. 
-
-
 
 ### 1.8 Outlier detection and correction
 
 
-```
+```python
 !pip install xlsxwriter
 
 from io import BytesIO
@@ -1631,7 +1503,7 @@ for column in columns_to_process:
     output_file = f"{column}_results.xlsx"
     process_column_export(df, column, output_file)
 ```
-**1. Import Required Libraries**  
+**Import required libraries**  
 ```python
 !pip install xlsxwriter
 
@@ -1647,9 +1519,7 @@ import xlsxwriter
   - `numpy` for numerical operations.
   - `xlsxwriter` for exporting to Excel.
 
----
-
-**2. Define the Function to Detect Outliers**  
+**Define the function to detect outliers**  
 ```python
 def detect_outliers_scatterplot(df, col):
     Q1 = df[col].quantile(0.25)
@@ -1662,18 +1532,14 @@ def detect_outliers_scatterplot(df, col):
 - Calculates the lower and upper bounds for detecting outliers using the IQR method.
 - Returns the calculated bounds for a given column.
 
----
-
-**3. Define the Function to Calculate Moving Average**  
+**Define the function to calculate moving average**  
 ```python
 def calculate_moving_avg(series, window):
     return series.rolling(window=window, min_periods=1).mean()
 ```
 - Computes the moving average for a given series with a specified rolling window.
 
----
-
-**4. Define the Function for Moving Average Excluding Outliers**  
+**Define the function for moving average excluding outliers**  
 ```python
 def calculate_moving_avg_excluding_outliers(series, window, threshold=1.5):
     q1 = series.quantile(0.25)
@@ -1693,25 +1559,20 @@ def calculate_moving_avg_excluding_outliers(series, window, threshold=1.5):
 - Detects outliers and replaces them with `NaN` before calculating the moving average.
 - Uses forward and backward filling to handle gaps.
 
----
-
-**5. Define the Function to Process and Export Results**  
+**Define the function to process and export results**  
 ```python
 def process_column_export(df, column, output_file):
 ```
 - Processes outliers, computes corrected values, and exports the results for a specific column to an Excel file.
 
----
 
-**6. Group the DataFrame by Admin and Year Levels**  
+**Group the dataFrame by admin and year Levels**  
 ```python
     grouped = df.groupby(['adm1', 'adm2', 'adm3', 'hf', 'year'])
 ```
 - Groups the DataFrame by administrative levels (`adm1`, `adm2`, `adm3`, `hf`) and `year`.
 
----
-
-**7. Iterate Over Groups and Process Data**  
+**Iterate over groups and process data**  
 ```python
     for (adm1, adm2, adm3, hf, year), group in grouped:
         lower_bound, upper_bound = detect_outliers_scatterplot(group, column)
@@ -1719,9 +1580,7 @@ def process_column_export(df, column, output_file):
 - Iterates through each group.
 - Calculates lower and upper bounds for outliers in the specified column.
 
----
-
-**8. Add Outlier Information to the Group**  
+**Add outlier information to the group**  
 ```python
         group[f'{column}_lower_bound'] = lower_bound
         group[f'{column}_upper_bound'] = upper_bound
@@ -1732,9 +1591,8 @@ def process_column_export(df, column, output_file):
 - Adds lower and upper bounds for outliers as new columns.
 - Categorizes values as "Outlier" or "Non-Outlier."
 
----
 
-**9. Calculate Statistical Metrics**  
+**Calculate statistical metrics**  
 ```python
         mean_include_outliers = group[column].mean()
         mean_exclude_outliers = group[(group[column] >= lower_bound) & (group[column] <= upper_bound)][column].mean()
@@ -1745,9 +1603,8 @@ def process_column_export(df, column, output_file):
   - Mean and median including outliers.
   - Mean and median excluding outliers.
 
----
 
-**10. Compute Moving Averages and Winsorization**  
+**Compute moving averages and winsorization**  
 ```python
         moving_avg_include_outliers = calculate_moving_avg(group[column], window=3)
         moving_avg_exclude_outliers = calculate_moving_avg_excluding_outliers(group[column], window=3)
@@ -1758,9 +1615,7 @@ def process_column_export(df, column, output_file):
   - Excluding outliers.
 - Winsorizes data by capping outliers at the bounds.
 
----
-
-**11. Create Corrected Columns**  
+**Create corrected columns**  
 ```python
         group[f'{column}_corrected_mean_include'] = group[column].where(group[f'{column}_category'] == 'Non-Outlier', mean_include_outliers)
         group[f'{column}_corrected_mean_exclude'] = group[column].where(group[f'{column}_category'] == 'Non-Outlier', mean_exclude_outliers)
@@ -1772,27 +1627,21 @@ def process_column_export(df, column, output_file):
 ```
 - Creates corrected columns using different statistical and outlier correction methods.
 
----
 
-**12. Append Processed Data**  
+**Append processed data**  
 ```python
         results.append(group)
 ```
 - Appends each processed group to the results list.
 
----
-
-**13. Combine and Export Results**  
+**Combine and export results**  
 ```python
     final_df = pd.concat(results)
     final_df[export_columns].to_excel(output_file, index=False, engine='xlsxwriter')
 ```
 - Combines all processed groups into a single DataFrame.
 - Exports the results to an Excel file.
-
----
-
-**14. Process All Specified Columns**  
+**Process all specified columns**  
 ```python
 columns_to_process = ['allout', 'susp', 'test', 'conf', 'maltreat', 'pres', 'maladm', 'maldth']
 
@@ -1802,42 +1651,32 @@ for column in columns_to_process:
 ```
 - Loops through all specified columns, processes them, and exports results to separate Excel files.
 
-
 #### 1.8.1 User guide: what to modify
 
-
-**1. Input DataFrame (`df`)**
+**Input dataFrame (`df`)**
 - Replace `df` with the actual name of your DataFrame containing the data.
   ```python
   df = create_variables(df)
   ```
-
-
-**2. Grouping Columns**
+**Grouping columns**
 - Ensure the following columns exist in your dataset for grouping:
   - `adm1`, `adm2`, `adm3`, `hf`, and `year`.
 - If your column names differ, update them in the grouping logic:
   ```python
   grouped = df.groupby(['your_adm1_column', 'your_adm2_column', 'your_adm3_column', 'your_hf_column', 'your_year_column'])
   ```
-
-
-**3. Columns to Process**
+**Columns to process**
 - Ensure the `columns_to_process` list includes all the columns you want to analyze:
   ```python
   columns_to_process = ['allout', 'susp', 'test', 'conf', 'maltreat', 'pres', 'maladm', 'maldth']
   ```
 - If additional columns are required, add them to this list.
-
-
-**4. Column Names**
+**Column names**
 - Verify that all columns referenced in the code (e.g., `allout`, `susp`, `test`) exist in your DataFrame. Update their names if they differ in your dataset:
   ```python
   'allout', 'susp', 'test', 'conf', 'maltreat', 'pres', 'maladm', 'maldth'
   ```
-
-
-**5. Export File Names**
+**Export file names**
 - Update the naming convention for the output Excel files if needed:
   ```python
   output_file = f"{column}_results.xlsx"
@@ -1846,9 +1685,7 @@ for column in columns_to_process:
   ```python
   output_file = f"/path/to/directory/{column}_results.xlsx"
   ```
-
-
-**6. Export Columns**
+**Export Columns**
 - Ensure the `export_columns` list includes the columns you want in the output file. Modify this list if additional columns are needed or some columns are unnecessary:
   ```python
   export_columns = [
@@ -1860,32 +1697,26 @@ for column in columns_to_process:
       f'{column}_corrected_winsorised'
   ]
   ```
-
-
-**7. Missing Values Handling**
+**Missing Values Handling**
 - Ensure missing values are handled appropriately in `.sum()` operations. These parameters are already set correctly:
   ```python
   skipna=True  # Ignores NaN values
   min_count=1  # Requires at least one non-NaN value
   ```
-
-
-**8. Statistical Calculations**
+**Statistical Calculations**
 - Ensure the statistical calculations (mean, median, moving averages, winsorization) match your requirements. If no modifications are required, keep these unchanged:
   - Mean including/excluding outliers.
   - Median including/excluding outliers.
   - Moving averages.
   - Winsorized values.
-
-
-**9. Dataset Formatting**
+**Dataset formatting**
 - Ensure your dataset is properly formatted:
   - No missing critical grouping columns (`adm1`, `adm2`, `adm3`, `hf`, `year`).
   - All data columns are numerical and free of non-numeric data if calculations are required.
 
 ### 1.9 Merge all data
 
-```
+```python
 import pandas as pd
 
 def merge_all_results(columns_to_process):
@@ -1930,26 +1761,26 @@ columns_to_process = ['allout', 'susp', 'test', 'conf', 'maltreat', 'pres', 'mal
 df = merge_all_results(columns_to_process)
 ```
 
-**1. Import the pandas Library**  
+**Import the pandas library**  
 ```python
 import pandas as pd
 ```
 - Imports the `pandas` library to handle data manipulation and file reading/writing.
 
 
-**2. Define the `merge_all_results` Function**  
+**Define the `merge_all_results` function**  
 ```python
 def merge_all_results(columns_to_process):
     """
     Merge all individual result Excel files into one consolidated file
-    using adm1, adm2, adm3, hf, Year, Month as merge keys
+    using adm1, adm2, adm3, hf, year, month as merge keys
     """
 ```
 - Defines a function named `merge_all_results` to consolidate individual result files into a single Excel file.
 - Includes a docstring explaining the function’s purpose and the merge keys used.
 
 
-**3. Define Merge Keys**  
+**Define merge keys**  
 ```python
     merge_keys = ['adm1', 'adm2', 'adm3', 'hf', 'year', 'month']
 ```
@@ -1957,16 +1788,14 @@ def merge_all_results(columns_to_process):
 - These keys ensure that the data from different files aligns correctly.
 
 
-**4. Initialize with the First File**  
+**Initialize with the first file**  
 ```python
     first_column = columns_to_process[0]
     merged_df = pd.read_excel(f"{first_column}_results.xlsx")
 ```
 - Reads the first result file (e.g., `allout_results.xlsx`) into a DataFrame named `merged_df`.
 - Uses the first column from the `columns_to_process` list as the starting point.
-
-
-**5. Iterate Over Remaining Columns**  
+**Iterate over remaining columns**  
 ```python
     for column in columns_to_process[1:]:
         # Read the next file
@@ -1974,9 +1803,7 @@ def merge_all_results(columns_to_process):
 ```
 - Loops through the remaining columns in the `columns_to_process` list.
 - Reads each corresponding result file (e.g., `susp_results.xlsx`, `test_results.xlsx`) into a DataFrame named `current_df`.
-
-
-**6. Merge Files One by One**  
+**Merge files one by one**  
 ```python
         merged_df = pd.merge(
             merged_df,
@@ -1991,14 +1818,14 @@ def merge_all_results(columns_to_process):
 - Adds suffixes to avoid column name conflicts (e.g., if a column exists in multiple files).
 
 
-**7. Sort the Merged Data**  
+**Sort the merged data**  
 ```python
     merged_df = merged_df.sort_values(by=merge_keys)
 ```
 - Sorts the consolidated DataFrame (`merged_df`) by the `merge_keys` for better organization.
 
 
-**8. Export the Merged Data**  
+**Export the merged data**  
 ```python
     merged_df.to_excel('clean_routine_data.xlsx', index=False)
     print(f"Merged data saved to 'clean_routine_data.xlsx'")
@@ -2007,21 +1834,20 @@ def merge_all_results(columns_to_process):
 - Prints a confirmation message after saving the file.
 
 
-**9. Return the Merged DataFrame**  
+**Return the merged dataframe**  
 ```python
     return merged_df
 ```
 - Returns the merged DataFrame (`merged_df`) for further use or analysis.
 
-
-**10. List of Columns/Files to Merge**  
+**List of columns/files to merge**  
 ```python
 columns_to_process = ['allout', 'susp', 'test', 'conf', 'maltreat', 'pres', 'maladm', 'maldth']
 ```
 - Specifies the list of columns (and corresponding result files) to be merged.
  
 
-**11. Perform the Merge**  
+**Perform the merge**  
 ```python
 df = merge_all_results(columns_to_process)
 ```
@@ -2031,25 +1857,24 @@ df = merge_all_results(columns_to_process)
 
 ### 1.10 User guide: what to modify
 
-**1. Input Files**
+**Input files**
 - Ensure the files corresponding to each column in `columns_to_process` exist and are named correctly in the format `{column}_results.xlsx` (e.g., `allout_results.xlsx`, `susp_results.xlsx`).
   ```python
   columns_to_process = ['allout', 'susp', 'test', 'conf', 'maltreat', 'pres', 'maladm', 'maldth']
   ```
 
-**2. Merge Keys**
+**Merge keys**
 - Verify that the merge keys (`adm1`, `adm2`, `adm3`, `hf`, `year`, `month`) exist in all the files being merged. Update the keys if your column names differ:
   ```python
   merge_keys = ['your_adm1_column', 'your_adm2_column', 'your_adm3_column', 'your_hf_column', 'your_year_column', 'your_month_column']
   ```
 
-**3. Column Name Conflicts**
+**Column name conflicts**
 - Check for overlapping column names in the input files. The `suffixes` parameter handles conflicts, but you can customize the suffixes if needed:
   ```python
   suffixes=('', f'_{column}')  # Default behavior
   ```
-
-**4. Output File Name**
+**Output file name**
 - Update the output file name and location as required:
   ```python
   merged_df.to_excel('clean_routine_data.xlsx', index=False)
@@ -2059,21 +1884,20 @@ df = merge_all_results(columns_to_process)
     merged_df.to_excel('/path/to/directory/clean_routine_data.xlsx', index=False)
     ```
 
-**5. Sorting Keys**
+**Sorting keys**
 - Ensure the `merge_keys` used for sorting (`adm1`, `adm2`, `adm3`, `hf`, `year`, `month`) are appropriate for your dataset. Update them if the dataset requires different sorting criteria:
   ```python
   merged_df = merged_df.sort_values(by=['your_sort_key1', 'your_sort_key2', ...])
   ```
 
-**6. Columns to Process**
+**Columns to process**
 - If additional or fewer columns need to be merged, modify the `columns_to_process` list:
   ```python
   columns_to_process = ['your_column1', 'your_column2', ...]
   ```
-
 ### 1.11 Output final database
 
-```
+```python
 import pandas as pd
 
 def save_selected_columns_to_excel(input_file, selected_columns, output_file):
@@ -2163,19 +1987,14 @@ final_output_file = 'clean_malaria_routine_data.xlsx'
 
 # Rename columns and save to the final file
 rename_columns_in_excel(intermediate_file, rename_mapping, final_output_file)
-
-
 ```
 
-**1. Import Necessary Libraries**  
+**Import necessary libraries**  
 ```python
 import pandas as pd
 ```
 - Imports the `pandas` library for handling Excel files and manipulating data.
-
-
-
-**2. Define the `save_selected_columns_to_excel` Function**  
+**Define the `save_selected_columns_to_excel` Function**  
 ```python
 def save_selected_columns_to_excel(input_file, selected_columns, output_file):
     """
@@ -2189,14 +2008,13 @@ def save_selected_columns_to_excel(input_file, selected_columns, output_file):
   - `output_file`: Path to save the resulting file.
 
 
-**3. Read the Dataset**  
+**Read the dataset**  
 ```python
         df = pd.read_excel(input_file)
 ```
 - Reads the input Excel file into a pandas DataFrame.
 
-
-**4. Filter the Selected Columns**  
+**Filter the selected Columns**  
 ```python
         existing_columns = [col for col in selected_columns if col in df.columns]
         if not existing_columns:
@@ -2206,14 +2024,14 @@ def save_selected_columns_to_excel(input_file, selected_columns, output_file):
 - Raises an error if none of the selected columns are present.
 
 
-**5. Create a New DataFrame with Selected Columns**  
+**Create a new dataframe with selected columns**  
 ```python
         selected_df = df[existing_columns]
 ```
 - Creates a new DataFrame containing only the specified columns.
 
 
-**6. Save the Selected Columns to a New Excel File**  
+**Save the selected columns to a new excel file**  
 ```python
         selected_df.to_excel(output_file, index=False)
         print(f"Selected columns saved to '{output_file}' successfully!")
@@ -2222,7 +2040,7 @@ def save_selected_columns_to_excel(input_file, selected_columns, output_file):
 - Saves the filtered DataFrame to a new Excel file without the index.
 - Prints a confirmation message along with the saved columns.
 
-**7. Define the `rename_columns_in_excel` Function**  
+**Define the `rename_columns_in_excel` Function**  
 ```python
 def rename_columns_in_excel(file_path, rename_mapping, output_file):
     """
@@ -2234,23 +2052,17 @@ def rename_columns_in_excel(file_path, rename_mapping, output_file):
   - `file_path`: Path to the existing Excel file.
   - `rename_mapping`: Dictionary mapping old column names to new column names.
   - `output_file`: Path to save the renamed file.
-
-
-**8. Read the Dataset from the File**  
+**Read the dataset from the file**  
 ```python
         df = pd.read_excel(file_path)
 ```
 - Reads the input Excel file into a pandas DataFrame.
-
-
-**9. Rename Columns**  
+**Rename columns**  
 ```python
         df.rename(columns=rename_mapping, inplace=True)
 ```
 - Renames the columns in the DataFrame using the provided `rename_mapping` dictionary.
-
-
-**10. Save the Renamed Columns to a New Excel File**  
+**Save the renamed columns to a new excel file**  
 ```python
         df.to_excel(output_file, index=False)
         print(f"Renamed columns saved to '{output_file}' successfully!")
@@ -2258,10 +2070,7 @@ def rename_columns_in_excel(file_path, rename_mapping, output_file):
 ```
 - Saves the DataFrame with renamed columns to a new Excel file without the index.
 - Prints a confirmation message along with the renamed columns.
-
-
-
-**11. Specify Input File, Selected Columns, and Intermediate File**  
+**Specify input file, selected columns, and intermediate file**  
 ```python
 input_file = 'clean_routine_data.xlsx'
 selected_columns = [
@@ -2276,17 +2085,13 @@ intermediate_file = 'intermediate_selected_data.xlsx'
   - The input Excel file (`input_file`) containing all data.
   - The list of columns to be saved to a new file (`selected_columns`).
   - The name of the intermediate Excel file (`intermediate_file`) to store the selected columns.
-
-
-
-**12. Save Selected Columns to the Intermediate File**  
+**Save selected columns to the intermediate File**  
 ```python
 save_selected_columns_to_excel(input_file, selected_columns, intermediate_file)
 ```
 - Calls the `save_selected_columns_to_excel` function to extract the selected columns and save them to the `intermediate_file`.
 
-
-**13. Specify Rename Mapping and Final Output File**  
+**13. Specify rename mapping and final output file**  
 ```python
 rename_mapping = {
     'allout_corrected_winsorised': 'allout',
@@ -2304,9 +2109,7 @@ final_output_file = 'clean_malaria_routine_data.xlsx'
   - The mapping of old column names to new column names (`rename_mapping`).
   - The name of the final output Excel file (`final_output_file`).
 
----
-
-**14. Rename Columns and Save to the Final File**  
+**14. Rename columns and save to the final file**  
 ```python
 rename_columns_in_excel(intermediate_file, rename_mapping, final_output_file)
 ```
@@ -2315,14 +2118,12 @@ rename_columns_in_excel(intermediate_file, rename_mapping, final_output_file)
 
 #### 1.12 User guide: what to modify
 
-**1. Input File (`input_file`)**
+**Input File (`input_file`)**
 - Replace `'clean_routine_data.xlsx'` with the actual path to your input Excel file:
   ```python
   input_file = 'your_input_file.xlsx'
   ```
-
-
-**2. Selected Columns (`selected_columns`)**
+**Selected Columns (`selected_columns`)**
 - Ensure the `selected_columns` list contains the column names you want to extract.
 - Verify that these columns exist in the input file. Update the list as needed:
   ```python
@@ -2331,16 +2132,12 @@ rename_columns_in_excel(intermediate_file, rename_mapping, final_output_file)
       'your_column1', 'your_column2', ...
   ]
   ```
-
-
-**3. Intermediate File Name (`intermediate_file`)**
+**Intermediate file name (`intermediate_file`)**
 - Modify the name and path of the intermediate file if necessary:
   ```python
   intermediate_file = 'your_intermediate_file.xlsx'
   ```
-
-
-**4. Rename Mapping (`rename_mapping`)**
+**4. Rename mapping (`rename_mapping`)**
 - Update the `rename_mapping` dictionary to reflect the old column names and their desired new names:
   ```python
   rename_mapping = {
@@ -2349,20 +2146,14 @@ rename_columns_in_excel(intermediate_file, rename_mapping, final_output_file)
       ...
   }
   ```
-
-**5. Final Output File Name (`final_output_file`)**
+**5. Final output file name (`final_output_file`)**
 - Change the name and path of the final output file as needed:
   ```python
   final_output_file = 'your_final_output_file.xlsx'
   ```
 
-**6. Verify Column Names**
+**6. Verify column names**
 - Ensure that all columns in the `rename_mapping` exist in the `intermediate_file`. Update the mapping or intermediate file if discrepancies occur.
-
-
-
-
-
 
 
 
