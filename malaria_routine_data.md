@@ -62,6 +62,7 @@ output_file = "malaria_routine_data.xlsx"
 # Combine files with validation
 combine_excel_files_with_validation(input_files, output_file)
 ```
+#### Detailed code explanation
 ```python
 import pandas as pd
 ```
@@ -307,6 +308,7 @@ output_file = "malaria_routine_data.xlsx"
 combine_excel_files_with_validation(file_urls, output_file)
 
 ```
+#### Detailed code explanation
 **Import libraries**
 ```python
 import pandas as pd
@@ -396,7 +398,7 @@ def combine_excel_files_with_validation(file_urls, output_file):
   4. Appends the validated DataFrame to `dfs`.
 
 
-**9. Combine and save**
+**Combine and save**
 ```python
         combined_df = pd.concat(dfs, ignore_index=True)
         combined_df.to_excel(output_file, index=False)
@@ -497,6 +499,86 @@ if combined_data is not None:
 df = combined_data.copy()
 
 ```
+#### Detailed code explanation"
+**Import the pandas Library**  
+```python
+import pandas as pd
+```
+- Imports the `pandas` library, which is essential for reading and manipulating Excel files.
+
+**Define the `read_combined_excel` Function**  
+```python
+def read_combined_excel(file_path):
+    """
+    Reads a combined Excel file and loads it into a pandas DataFrame.
+
+    Parameters:
+        file_path (str): Path to the Excel file.
+
+    Returns:
+        pd.DataFrame: DataFrame containing the data from the Excel file.
+    """
+```
+- Defines a function named `read_combined_excel` that takes a file path as input and returns a pandas DataFrame.
+- Includes a docstring to describe the function’s purpose, input parameters, and return value.
+
+**Try to read the excel file**  
+```python
+    try:
+        combined_df = pd.read_excel(file_path, sheet_name=0)  # Read the first sheet
+        print("Combined DataFrame loaded successfully!")
+        return combined_df
+```
+- Starts a `try` block to attempt reading the Excel file.
+- Uses `pd.read_excel` to load the first sheet (`sheet_name=0`) of the specified Excel file into a DataFrame named `combined_df`.
+- Prints a success message if the file is loaded successfully.
+- Returns the loaded DataFrame.
+**Handle file not found errors**  
+```python
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+```
+- Catches a `FileNotFoundError` if the specified file path does not exist.
+- Prints an error message indicating the file could not be found.
+
+**Handle Other Exceptions**  
+```python
+    except Exception as e:
+        print(f"Error reading the Excel file: {e}")
+```
+- Catches and handles any other exceptions that might occur during file reading.
+- Prints the exception message to help debug the issue.
+
+**Specify the Output File Path**  
+```python
+output_file = "malaria_routine_data.xlsx"
+```
+- Assigns the file name (`malaria_routine_data.xlsx`) to the variable `output_file`.
+- This is the file to be read into a pandas DataFrame.
+
+
+**Call the `read_combined_excel` Function**  
+```python
+combined_data = read_combined_excel(output_file)
+```
+- Calls the `read_combined_excel` function, passing `output_file` as the argument.
+- Assigns the returned DataFrame to the variable `combined_data`.
+
+**Check If the DataFrame Is Loaded**  
+```python
+if combined_data is not None:
+    print(combined_data.head())  # Display the first few rows
+```
+- Checks if `combined_data` is not `None`, ensuring the file was successfully loaded.
+- Prints the first five rows of the DataFrame using `.head()` for a quick preview.
+
+
+**Create a Copy of the DataFrame**  
+```python
+df = combined_data.copy()
+```
+- Creates a copy of the loaded DataFrame (`combined_data`) and assigns it to the variable `df`.
+- Ensures that modifications to `df` do not affect the original data in `combined_data`.
 
 #### 1.3.1 User guide: what to change
 
@@ -640,7 +722,6 @@ def process_dataframe_with_integer_month(df, column_to_split, drop_column):
         }
 ```
 - Creates a dictionary (`month_map`) that maps month names (e.g., `'January'`) to their corresponding numeric values as strings (e.g., `'01'`).
-
 
 
 **Split the specified column into 'month' and 'year'**  
@@ -1106,15 +1187,13 @@ def create_variables(df):
 # Call the function
 df = create_variables(df)
 ```
-
+#### Detailed code explanation
 **Import necessary libraries**  
 ```python
 import numpy as np
 import pandas as pd
 ```
 - Imports `numpy` for numerical operations and `pandas` for data manipulation.
-
-
 **2. Define the `create_variables` function**  
 ```python
 def create_variables(df):
@@ -1131,25 +1210,23 @@ def create_variables(df):
 - Defines a function named `create_variables` to generate new columns based on computations.
 - Includes a docstring describing the function's purpose, input (`df`), and output (a modified DataFrame).
 
-
-
-**3. Use a `try` block to handle errors**  
+**Use a `try` block to handle errors**  
 ```python
     try:
 ```
 - Starts a `try` block to handle potential exceptions during column computations.
-**4. Create the `allout` variable**  
+**Create the `allout` variable**  
 ```python
         df['allout'] = df[['allout_u5', 'allout_ov5']].sum(axis=1, skipna=True, min_count=1)
 ```
 - Adds a new column `allout` by summing `allout_u5` and `allout_ov5` for each row.
 - `skipna=True` ensures `NaN` values are ignored, and `min_count=1` ensures at least one non-`NaN` value is required to compute the sum.
-**5. Create the `susp` variable**  
+**Create the `susp` variable**  
 ```python
         df['susp'] = df[['susp_u5_hf', 'susp_5_14_hf', 'susp_ov15_hf', 'susp_u5_com', 'susp_5_14_com', 'susp_ov15_com']].sum(axis=1, skipna=True, min_count=1)
 ```
 - Adds a new column `susp` by summing all columns related to suspected malaria cases in both health facilities (`hf`) and communities (`com`).
-**6. Create the `test_hf` variable**  
+**Create the `test_hf` variable**  
 ```python
         test_hf_columns = [
             'test_neg_mic_u5_hf', 'test_pos_mic_u5_hf', 'test_neg_mic_5_14_hf', 'test_pos_mic_5_14_hf',
@@ -1213,7 +1290,7 @@ def create_variables(df):
 ```
 - Computes treatment-related variables for communities, health facilities, and their total.
 
-**Create Prescription Variables**  
+**Create prescription variables**  
 ```python
         df['pres_com'] = df['maltreat_com'].sub(df['conf_com'], fill_value=0)
         df['pres_com'] = np.where(df['pres_com'] < 0, 0, df['pres_com'])
@@ -1225,8 +1302,6 @@ def create_variables(df):
 ```
 - Calculates prescriptions (`pres_com`, `pres_hf`) by subtracting confirmed cases from treatments and ensures no negative values.
 - Combines these into the total `pres` variable.
-
-
 
 **Create malaria admission and death variables**  
 ```python
@@ -1253,10 +1328,7 @@ df = create_variables(df)
 ```
 - Calls the `create_variables` function and processes the DataFrame `df`.
 
-
 #### 1.6.1 User guide: what to modify
-
-
 **Input dataFrame**  
 - Replace the placeholder `df` with the name of your actual DataFrame when calling the function:
   ```python
@@ -1278,7 +1350,6 @@ df = create_variables(df)
   ```
   - `skipna=True`: Ignores `NaN` values.
   - `min_count=1`: Ensures at least one non-`NaN` value is required for the sum.
-
 
 **Logical operations for prescription variables**  
 - Confirm the subtraction logic for prescription variables (`pres_com` and `pres_hf`):
@@ -1318,6 +1389,7 @@ def create_hfid_column(df):
 df=create_hfid_column(df)
 ```
 
+#### Detailed code explanation
 **Define the `create_hfid_column` Function**  
 ```python
 def create_hfid_column(df):
@@ -1503,6 +1575,7 @@ for column in columns_to_process:
     output_file = f"{column}_results.xlsx"
     process_column_export(df, column, output_file)
 ```
+#### Detailed code explanation
 **Import required libraries**  
 ```python
 !pip install xlsxwriter
@@ -1760,7 +1833,7 @@ columns_to_process = ['allout', 'susp', 'test', 'conf', 'maltreat', 'pres', 'mal
 # Perform the merge
 df = merge_all_results(columns_to_process)
 ```
-
+#### Detailed code explanation
 **Import the pandas library**  
 ```python
 import pandas as pd
@@ -1855,7 +1928,7 @@ df = merge_all_results(columns_to_process)
 - Stores the merged DataFrame in the variable `df`.
 
 
-### 1.10 User guide: what to modify
+### 1.9.1 User guide: what to modify
 
 **Input files**
 - Ensure the files corresponding to each column in `columns_to_process` exist and are named correctly in the format `{column}_results.xlsx` (e.g., `allout_results.xlsx`, `susp_results.xlsx`).
@@ -1988,7 +2061,7 @@ final_output_file = 'clean_malaria_routine_data.xlsx'
 # Rename columns and save to the final file
 rename_columns_in_excel(intermediate_file, rename_mapping, final_output_file)
 ```
-
+#### Detailed code explanation
 **Import necessary libraries**  
 ```python
 import pandas as pd
